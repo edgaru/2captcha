@@ -8,6 +8,8 @@ class CaptchaUpload:
         self.settings = {"url_request": "http://2captcha.com/in.php",
                          "url_response": "http://2captcha.com/res.php",
                          "key": key}
+        self.catpcha_id = None
+        
         if log:
             self.log = log
             self.logenabled = True
@@ -100,7 +102,8 @@ class CaptchaUpload:
                 if request.text.split('|')[0] == "OK":
                     if self.logenabled:
                         self.log.info("[2CaptchaUpload] Upload Ok")
-                    return self.getresult(request.text.split('|')[1])
+                    self.catpcha_id = request.text.split('|')[1]
+                    return self.getresult(self.catpcha_id)
                 elif request.text == "ERROR_WRONG_USER_KEY":
                     if self.logenabled:
                         self.log.error("[2CaptchaUpload] Wrong 'key' parameter"
@@ -165,3 +168,15 @@ class CaptchaUpload:
             if self.logenabled:
                 self.log.error("[2CaptchaUpload] File %s not exists" % pathfile)
             return 1
+        
+    def report_bad():
+        if self.catpcha_id is not None:
+            fullurl = "%s?key=%s&action=reportbad&id=%s" % (self.settings['url_response'],
+                                                  self.settings['key'], self.catpcha_id)
+            request = get(fullUrl)
+            
+            if request.text != 'OK_REPORT_RECORDED':
+                raise Exception("Error al reportar: {0}".format(request.text))
+        else:
+            raise Exception("No existe captcha que reportar")
+            
