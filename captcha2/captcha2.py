@@ -169,14 +169,17 @@ class CaptchaUpload:
                 self.log.error("[2CaptchaUpload] File %s not exists" % pathfile)
             return 1
         
-    def report_bad():
+    def report_bad(self):
+        """
+        Report bad catpcha solution.
+        :return:
+        """
         if self.catpcha_id is not None:
             fullurl = "%s?key=%s&action=reportbad&id=%s" % (self.settings['url_response'],
                                                   self.settings['key'], self.catpcha_id)
-            request = get(fullUrl)
+            request = get(fullurl)
             
             if request.text != 'OK_REPORT_RECORDED':
-                raise Exception("Error al reportar: {0}".format(request.text))
+                raise Exception("Error reporting: {0}".format(request.text))
         else:
-            raise Exception("No existe captcha que reportar")
-            
+            raise Exception("There is no captcha to report")
